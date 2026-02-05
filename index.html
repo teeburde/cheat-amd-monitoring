@@ -100,6 +100,19 @@
             background-color: rgba(169, 169, 169, 0.9);
             border-color: rgba(105, 105, 105, 1);
         }
+
+         .symbol-ambient {
+            width: 0;
+            height: 0;
+            background-color: transparent;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 14px solid rgba(0, 150, 255, 0.9);
+            border-radius: 0;
+            margin-right: 8px;
+            position: relative;
+            top: -2px;
+        }
         </style>
         
         <title></title>
@@ -158,9 +171,14 @@
                 <span class="compliance-symbol symbol-nodischarge"></span>
                 <span>No Discharge</span>
             </div>
-        </div> 
+            <div class="compliance-legend-item">
+                <span class="compliance-symbol symbol-ambient"></span>
+                <span>Ambient Monitoring</span>
+            </div>
+        </div>
     </body>
 
 </html>
+
 
 
