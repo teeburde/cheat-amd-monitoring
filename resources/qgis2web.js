@@ -1290,62 +1290,83 @@ document.addEventListener('DOMContentLoaded', function() {
             
             var featuresAdded = 0;
             aggregatedData.forEach(function(outfallData) {
-                var compliance_status = getComplianceStatus(outfallData);
-                
-                // Create parameters summary for popup
-                var paramsSummary = '<ul>';
-                outfallData.parameters.forEach(function(param) {
-                    var complianceIcon = '';
-                    switch(param.compliance) {
-                        case 'Not in Compliance':
-                            complianceIcon = '❌';
-                            break;
-                        case 'In Compliance':
-                            complianceIcon = '✅';
-                            break;
-                        case 'Unknown':
-                            complianceIcon = '❓';
-                            break;
-                        case 'No Discharge':
-                            complianceIcon = '⚪';
-                            break;
-                    }
-                    
-                    // Format limit display - show range for pH, single value for others
-                    var limitDisplay = '';
-                    if (param.parameter.toLowerCase().includes('ph')) {
-                        // For pH, show as range if both min and max exist
-                        if (param.mo_min_limit !== null && param.mo_max_limit !== null) {
-                            limitDisplay = param.mo_min_limit + '-' + param.mo_max_limit;
-                        } else {
-                            limitDisplay = 'N/A';
-                        }
-                    } else {
-                        // For other parameters, show only max limit
-                        limitDisplay = param.mo_max_limit !== null ? param.mo_max_limit : 'N/A';
-                    }
-                    
-                    paramsSummary += '<li>' + complianceIcon + ' <strong>' + param.parameter + '</strong>: ' + 
-                                     (param.reported_value !== null ? param.reported_value : 'N/A') + ' ' + 
-                                     (param.units !== null ? param.units : '') + 
-                                     ' (Limit: ' + limitDisplay + ')</li>';
-                });
-                paramsSummary += '</ul>';
-                
-                // Create feature
-                var feature = new ol.Feature({
-                    geometry: new ol.geom.Point(ol.proj.fromLonLat(outfallData.coordinates)),
-                    permit_id: outfallData.permit_id,
-                    outfall: outfallData.outfall,
-                    outfall_description: outfallData.outfall_description,
-                    owner_name: outfallData.owner_name,
-                    compliance_status: compliance_status,
-                    parameters_summary: paramsSummary
-                });
-                
-                complianceSource.addFeature(feature);
-                featuresAdded++;
-            });
+    var compliance_status = getComplianceStatus(outfallData);
+    
+    // Debug logging for WV0043613
+    if (outfallData.permit_id === 'WV0043613') {
+        console.log('Processing WV0043613, Outfall:', outfallData.outfall, 
+                    'Coords:', outfallData.coordinates, 
+                    'Status:', compliance_status);
+    }
+    
+    // Create parameters summary for popup
+    var paramsSummary = '<ul>';
+    outfallData.parameters.forEach(function(param) {
+        var complianceIcon = '';
+        switch(param.compliance) {
+            case 'Not in Compliance':
+                complianceIcon = '❌';
+                break;
+            case 'In Compliance':
+                complianceIcon = '✅';
+                break;
+            case 'Unknown':
+                complianceIcon = '❓';
+                break;
+            case 'No Discharge':
+                complianceIcon = '⚪';
+                break;
+        }
+        
+        // Format limit display - show range for pH, single value for others
+        var limitDisplay = '';
+        if (param.parameter.toLowerCase().includes('ph')) {
+            // For pH, show as range if both min and max exist
+            if (param.mo_min_limit !== null && param.mo_max_limit !== null) {
+                limitDisplay = param.mo_min_limit + '-' + param.mo_max_limit;
+            } else {
+                limitDisplay = 'N/A';
+            }
+        } else {
+            // For other parameters, show only max limit
+            limitDisplay = param.mo_max_limit !== null ? param.mo_max_limit : 'N/A';
+        }
+        
+        paramsSummary += '<li>' + complianceIcon + ' <strong>' + param.parameter + '</strong>: ' + 
+                         (param.reported_value !== null ? param.reported_value : 'N/A') + ' ' + 
+                         (param.units !== null ? param.units : '') + 
+                         ' (Limit: ' + limitDisplay + ')</li>';
+    });
+    paramsSummary += '</ul>';
+    
+    // Transform coordinates
+    var transformedCoords = ol.proj.fromLonLat(outfallData.coordinates);
+    
+    // Debug logging for transformation
+    if (outfallData.permit_id === 'WV0043613') {
+        console.log('  Original coords:', outfallData.coordinates);
+        console.log('  Transformed coords:', transformedCoords);
+    }
+    
+    // Create feature
+    var feature = new ol.Feature({
+        geometry: new ol.geom.Point(transformedCoords),
+        permit_id: outfallData.permit_id,
+        outfall: outfallData.outfall,
+        outfall_description: outfallData.outfall_description,
+        owner_name: outfallData.owner_name,
+        compliance_status: compliance_status,
+        parameters_summary: paramsSummary
+    });
+    
+    complianceSource.addFeature(feature);
+    featuresAdded++;
+    
+    // Debug: Verify feature was added
+    if (outfallData.permit_id === 'WV0043613') {
+        console.log('  Feature added to source. Total features now:', complianceSource.getFeatures().length);
+    }
+});
             
             console.log('Added ' + featuresAdded + ' features to compliance layer');
             console.log('Layer extent:', complianceSource.getExtent());
@@ -1406,5 +1427,6 @@ document.addEventListener('DOMContentLoaded', function() {
         bottomRightContainerDiv.appendChild(attributionControl);
 
     }
+
 
 
