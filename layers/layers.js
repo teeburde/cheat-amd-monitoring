@@ -56,6 +56,8 @@ var lyr_RiversandStreams_3 = new ol.layer.Vector({
                 style: style_RiversandStreams_3,
                 popuplayertitle: 'Rivers and Streams',
                 interactive: false,
+                minZoom: 12,
+                maxZoom: 20,
                 title: '<img src="styles/legend/RiversandStreams_3.png" /> Rivers and Streams'
             });
 var format_MainRivers_4 = new ol.format.GeoJSON();
